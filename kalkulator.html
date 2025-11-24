@@ -1,0 +1,2334 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Tryb Ekspert – Kalkulator & Auto FX / Krypto / Pogoda PRO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        :root {
+            --bg-main: #050505;
+            --bg-panel: #101010;
+            --bg-panel-alt: #0b0b0b;
+            --accent: #00ff88;
+            --accent-soft: rgba(0, 255, 136, 0.15);
+            --accent-strong: rgba(0, 255, 136, 0.3);
+            --danger: #ff3b3b;
+            --text-main: #f5f5f5;
+            --text-muted: #9f9f9f;
+            --border-soft: #1f1f1f;
+            --shadow-soft: 0 0 35px rgba(0, 255, 136, 0.25);
+            --radius-lg: 18px;
+            --radius-md: 12px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 136, 0.08) 0, transparent 55%),
+                radial-gradient(circle at 80% 70%, rgba(0, 255, 136, 0.12) 0, transparent 60%),
+                var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "🌿🌿🌿";
+            position: fixed;
+            top: 8%;
+            left: 6%;
+            font-size: 110px;
+            opacity: 0.05;
+            filter: blur(1px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: "🌿🌿";
+            position: fixed;
+            bottom: 4%;
+            right: 5%;
+            font-size: 130px;
+            opacity: 0.05;
+            filter: blur(1px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            width: 100%;
+            background: linear-gradient(135deg, #050505 0%, #090909 40%, #050505 100%);
+            border-radius: 26px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), var(--shadow-soft);
+            border: 1px solid rgba(0, 255, 136, 0.12);
+            padding: 24px 26px 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            gap: 16px;
+        }
+
+        .title-group { display: flex; flex-direction: column; gap: 4px; }
+
+        .title-main {
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .title-main span.leaf {
+            font-size: 1.6rem;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.7));
+        }
+
+        .title-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .chip {
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 255, 136, 0.35);
+            background: radial-gradient(circle at top, rgba(0, 255, 136, 0.16), transparent 60%);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chip span.dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.7);
+        }
+
+        .content { display: flex; gap: 20px; }
+
+        .calculator, .currency {
+            background: radial-gradient(circle at top left, #151515, #080808);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-soft);
+            padding: 16px 16px 14px;
+        }
+
+        .calculator { flex: 3; display: flex; flex-direction: column; gap: 12px; }
+        .currency { flex: 2.4; display: flex; flex-direction: column; gap: 10px; }
+
+        .display {
+            background: linear-gradient(135deg, #050505, #0c160f);
+            border-radius: var(--radius-md);
+            padding: 10px 12px 6px;
+            border: 1px solid rgba(0, 255, 136, 0.25);
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9);
+        }
+
+        .display-main {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--accent);
+            text-align: right;
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            padding: 2px 0 0;
+        }
+
+        .display-secondary {
+            margin-top: 2px;
+            text-align: right;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            min-height: 16px;
+        }
+
+        .display-memory {
+            margin-top: 2px;
+            text-align: right;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            min-height: 14px;
+        }
+
+        .display-memory span {
+            color: var(--accent);
+        }
+
+        .mode-toggle {
+            display: inline-flex;
+            align-self: flex-start;
+            background: radial-gradient(circle at top, rgba(0, 255, 136, 0.22), #000);
+            border-radius: 999px;
+            padding: 3px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .mode-toggle button {
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.18s ease-out;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .mode-toggle button.active {
+            background: rgba(0, 0, 0, 0.9);
+            color: var(--accent);
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.7);
+        }
+
+        .quick-fx {
+            margin-top: 4px;
+            padding: 6px 8px;
+            border-radius: var(--radius-md);
+            background: radial-gradient(circle at top, rgba(0, 255, 136, 0.16), #050705);
+            border: 1px solid rgba(0, 255, 136, 0.35);
+        }
+
+        .quick-fx-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            margin-bottom: 4px;
+        }
+
+        .quick-fx-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quick-fx-row select {
+            flex: 1;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #050905;
+            color: var(--text-main);
+            padding: 4px 8px;
+            font-size: 0.78rem;
+            outline: none;
+        }
+
+        .quick-fx-row span.arrow {
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        #quickFxBtn {
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 255, 136, 0.8);
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.3), #041308);
+            color: #000;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            cursor: pointer;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .keypad.expert-keys { margin-top: 6px; }
+
+        .btn {
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: radial-gradient(circle at top, #202020, #060606);
+            padding: 10px 4px;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+            transition: all 0.12s ease-out;
+            user-select: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.9);
+            border-color: rgba(0, 255, 136, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(1px) scale(0.99);
+            box-shadow: 0 2px 7px rgba(0, 0, 0, 0.9);
+            background: #050505;
+        }
+
+        .btn-operator { color: var(--accent); }
+
+        .btn-accent {
+            background: radial-gradient(circle at top, rgba(0, 255, 136, 0.28), #020b06);
+            border-color: rgba(0, 255, 136, 0.6);
+        }
+
+        .btn-danger {
+            border-color: rgba(0, 255, 136, 0.0);
+            color: var(--danger);
+            background: radial-gradient(circle at top, rgba(255, 59, 59, 0.12), #050000);
+        }
+
+        .btn-wide { grid-column: span 2; }
+        .btn-sm { font-size: 0.82rem; }
+
+        .keys-row-label {
+            grid-column: 1 / -1;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--text-muted);
+            margin: 2px 2px 0;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Historia obliczeń */
+        .history {
+            margin-top: 10px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(0, 255, 136, 0.25);
+            background: radial-gradient(circle at top, rgba(0, 255, 136, 0.12), #030504);
+            padding: 6px 8px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .history-header button {
+            border-radius: 999px;
+            border: 1px solid rgba(0, 255, 136, 0.6);
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--accent);
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            cursor: pointer;
+        }
+
+        .history-list {
+            font-size: 0.78rem;
+        }
+
+        .history-item {
+            padding: 4px 5px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            margin-bottom: 3px;
+            cursor: pointer;
+            transition: background 0.12s ease-out, border-color 0.12s ease-out, transform 0.05s;
+        }
+
+        .history-item:hover {
+            background: rgba(0, 255, 136, 0.08);
+            border-color: rgba(0, 255, 136, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .history-exp {
+            color: var(--text-muted);
+        }
+
+        .history-res {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .history-empty {
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .currency-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .currency-header h2 {
+            margin: 0;
+            font-size: 0.96rem;
+            text-transform: uppercase;
+            letter-spacing: 0.19em;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .currency-header h2 span.leaf {
+            font-size: 1.1rem;
+            filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.9));
+        }
+
+        .badge {
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            color: var(--accent);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .currency-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .currency-row label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            min-width: 95px;
+        }
+
+        .currency-row input[type="number"],
+        .currency-row select,
+        .currency-row input[type="text"] {
+            flex: 1;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--bg-panel-alt);
+            color: var(--text-main);
+            padding: 7px 9px;
+            font-size: 0.86rem;
+            outline: none;
+            transition: border-color 0.12s ease-out, box-shadow 0.12s ease-out, background 0.12s;
+        }
+
+        .currency-row input[type="number"]:focus,
+        .currency-row input[type="text"]:focus,
+        .currency-row select:focus {
+            border-color: rgba(0, 255, 136, 0.7);
+            box-shadow: 0 0 0 1px rgba(0, 255, 136, 0.4);
+            background: #050905;
+        }
+
+        .swap {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 255, 136, 0.7);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            cursor: pointer;
+            background: radial-gradient(circle at top, rgba(0, 255, 136, 0.25), #04150a);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.7);
+            transition: all 0.12s ease-out;
+        }
+
+        .swap:hover { transform: rotate(90deg); }
+        .swap:active { transform: rotate(90deg) scale(0.96); }
+
+        #convertBtn {
+            margin-top: 4px;
+            width: 100%;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(0, 255, 136, 0.7);
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.35), #020b05);
+            color: var(--bg-main);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            padding: 8px 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            box-shadow: 0 8px 22px rgba(0, 255, 136, 0.4);
+        }
+
+        #convertBtn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+        #convertBtn:active { transform: translateY(1px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9); }
+
+        .result {
+            margin-top: 6px;
+            padding: 7px 9px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            background: radial-gradient(circle at top, rgba(0, 255, 136, 0.16), #050705);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result strong { font-size: 1rem; color: var(--accent); }
+
+        /* Pogoda */
+        .weather-block {
+            margin-top: 10px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(0, 255, 136, 0.25);
+            background: radial-gradient(circle at top, rgba(0, 255, 136, 0.10), #020305);
+            padding: 7px 9px;
+        }
+
+        .weather-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .weather-main {
+            font-size: 0.84rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-top: 4px;
+        }
+
+        .weather-main strong {
+            color: var(--accent);
+        }
+
+        .weather-extra {
+            margin-top: 4px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .weather-extra span.label {
+            color: var(--text-muted);
+        }
+        .weather-extra span.value {
+            color: var(--accent);
+        }
+
+        .weather-warnings {
+            margin-top: 4px;
+            font-size: 0.75rem;
+        }
+        .weather-warning-strong {
+            color: var(--danger);
+            font-weight: 600;
+        }
+        .weather-warning-moderate {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* Konwertery jednostek */
+        .converters {
+            margin-top: 10px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(0, 255, 136, 0.25);
+            background: radial-gradient(circle at top, rgba(0, 255, 136, 0.10), #020305);
+            padding: 7px 9px;
+        }
+
+        .conv-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .conv-group-title {
+            font-size: 0.78rem;
+            color: var(--accent);
+            margin-top: 4px;
+            margin-bottom: 2px;
+        }
+
+        .conv-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+
+        .conv-row input,
+        .conv-row select {
+            flex: 1;
+            min-width: 60px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--bg-panel-alt);
+            color: var(--text-main);
+            padding: 5px 7px;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        .conv-row input:focus,
+        .conv-row select:focus {
+            border-color: rgba(0, 255, 136, 0.7);
+            box-shadow: 0 0 0 1px rgba(0, 255, 136, 0.4);
+            background: #050905;
+        }
+
+        .conv-row button {
+            border-radius: 999px;
+            border: 1px solid rgba(0, 255, 136, 0.6);
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--accent);
+            font-size: 0.72rem;
+            padding: 3px 7px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .conv-result {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .conv-result span {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .hint {
+            margin: 6px 1px 0;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .rate-status {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .rate-status button {
+            border-radius: 999px;
+            padding: 2px 8px;
+            border: 1px solid rgba(0, 255, 136, 0.6);
+            background: rgba(0,0,0,0.8);
+            color: var(--accent);
+            font-size: 0.7rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        #currentPair {
+            font-size: 0.75rem;
+            color: var(--accent);
+            margin-top: 2px;
+        }
+
+        .rate-table-wrapper {
+            margin-top: 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(0,255,136,0.25);
+            background: radial-gradient(circle at top, rgba(0,255,136,0.10), #030504);
+            max-height: 230px;
+            overflow-y: auto;
+            padding: 6px 8px;
+        }
+
+        .rate-table-title {
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            margin-bottom: 4px;
+        }
+
+        table.rate-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+        }
+
+        table.rate-table th,
+        table.rate-table td {
+            padding: 4px 4px;
+            text-align: right;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        table.rate-table th:first-child,
+        table.rate-table td:first-child {
+            text-align: left;
+        }
+
+        table.rate-table th {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        table.rate-table tr:last-child td { border-bottom: none; }
+
+        footer {
+            margin-top: 16px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        footer span.highlight { color: var(--accent); }
+
+        @media (max-width: 900px) {
+            .wrapper { padding: 18px 16px 16px; }
+            .content { flex-direction: column; }
+            .calculator, .currency { width: 100%; }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 12px; }
+            .title-main { font-size: 1.1rem; }
+            .badge { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <header>
+        <div class="title-group">
+            <div class="title-main">
+                <span class="leaf">🌿</span>
+                TRYB EKSPERT – KALKULATOR
+            </div>
+            <div class="title-sub">
+                OBLICZENIA • WALUTY • KRYPTOWALUTY • AUTO FX • POGODA PRO • JEDNOSTKI • PROMILE
+            </div>
+        </div>
+        <div class="chip">
+            <span class="dot"></span>
+            <span>BLACK & GREEN EDITION</span>
+        </div>
+    </header>
+
+    <div class="content">
+        <!-- KALKULATOR -->
+        <section class="calculator">
+            <div class="display">
+                <input id="main-display" class="display-main" type="text" readonly placeholder="0">
+                <div id="secondary-display" class="display-secondary"></div>
+                <div id="memory-display" class="display-memory"></div>
+            </div>
+
+            <div class="mode-toggle">
+                <button id="mode-basic" class="active" type="button">Standard</button>
+                <button id="mode-expert" type="button">Ekspert</button>
+            </div>
+
+            <div class="quick-fx">
+                <div class="quick-fx-label">Szybkie przeliczenie (używa liczby z wyświetlacza)</div>
+                <div class="quick-fx-row">
+                    <select id="quickFrom">
+                        <option value="PLN">PLN</option>
+                        <option value="EUR">EUR</option>
+                        <option value="USD">USD</option>
+                        <option value="GBP">GBP</option>
+                        <option value="CHF">CHF</option>
+                        <option value="JPY">JPY</option>
+                        <option value="CNY">CNY</option>
+                        <option value="CAD">CAD</option>
+                        <option value="AUD">AUD</option>
+                        <option value="CZK">CZK</option>
+                        <option value="SEK">SEK</option>
+                        <option value="NOK">NOK</option>
+                        <option value="UAH">UAH</option>
+                        <option value="BRL">BRL</option>
+                        <option value="ARS">ARS</option>
+                        <option value="MXN">MXN</option>
+                        <option value="THB">THB</option>
+                        <option value="VND">VND</option>
+                        <option value="ISK">ISK</option>
+                        <option value="UYU">UYU</option>
+                        <option value="BYN">BYN</option>
+                        <option value="BTC">BTC</option>
+                        <option value="ETH">ETH</option>
+                        <option value="USDT">USDT</option>
+                    </select>
+                    <span class="arrow">→</span>
+                    <select id="quickTo">
+                        <option value="EUR">EUR</option>
+                        <option value="PLN" selected>PLN</option>
+                        <option value="USD">USD</option>
+                        <option value="GBP">GBP</option>
+                        <option value="CHF">CHF</option>
+                        <option value="JPY">JPY</option>
+                        <option value="CNY">CNY</option>
+                        <option value="CAD">CAD</option>
+                        <option value="AUD">AUD</option>
+                        <option value="CZK">CZK</option>
+                        <option value="SEK">SEK</option>
+                        <option value="NOK">NOK</option>
+                        <option value="UAH">UAH</option>
+                        <option value="BRL">BRL</option>
+                        <option value="ARS">ARS</option>
+                        <option value="MXN">MXN</option>
+                        <option value="THB">THB</option>
+                        <option value="VND">VND</option>
+                        <option value="ISK">ISK</option>
+                        <option value="UYU">UYU</option>
+                        <option value="BYN">BYN</option>
+                        <option value="BTC">BTC</option>
+                        <option value="ETH">ETH</option>
+                        <option value="USDT">USDT</option>
+                    </select>
+                    <button id="quickFxBtn" type="button">FX</button>
+                </div>
+            </div>
+
+            <!-- Klawisze STANDARD z pamięcią -->
+            <div id="basic-keys" class="keypad">
+                <!-- Rząd pamięci -->
+                <button class="btn btn-sm" data-action="mc">MC</button>
+                <button class="btn btn-sm" data-action="mr">MR</button>
+                <button class="btn btn-sm" data-action="mplus">M+</button>
+                <button class="btn btn-sm" data-action="mminus">M-</button>
+
+                <!-- Rząd sterujący -->
+                <button class="btn btn-danger btn-sm" data-action="clear">AC</button>
+                <button class="btn btn-sm" data-action="backspace">⌫</button>
+                <button class="btn btn-operator btn-sm" data-value="%">%</button>
+                <button class="btn btn-operator" data-value="/">÷</button>
+
+                <!-- Cyfry i operatory -->
+                <button class="btn" data-value="7">7</button>
+                <button class="btn" data-value="8">8</button>
+                <button class="btn" data-value="9">9</button>
+                <button class="btn btn-operator" data-value="*">×</button>
+
+                <button class="btn" data-value="4">4</button>
+                <button class="btn" data-value="5">5</button>
+                <button class="btn" data-value="6">6</button>
+                <button class="btn btn-operator" data-value="-">−</button>
+
+                <button class="btn" data-value="1">1</button>
+                <button class="btn" data-value="2">2</button>
+                <button class="btn" data-value="3">3</button>
+                <button class="btn btn-operator" data-value="+">+</button>
+
+                <button class="btn btn-sm" data-action="sign">±</button>
+                <button class="btn" data-value="0">0</button>
+                <button class="btn" data-value=".">,</button>
+                <button class="btn btn-accent" data-action="equals">=</button>
+            </div>
+
+            <!-- Klawisze EKSPERT z pamięcią -->
+            <div id="expert-keys" class="keypad expert-keys hidden">
+                <div class="keys-row-label">Pamięć</div>
+                <button class="btn btn-sm" data-action="mc">MC</button>
+                <button class="btn btn-sm" data-action="mr">MR</button>
+                <button class="btn btn-sm" data-action="mplus">M+</button>
+                <button class="btn btn-sm" data-action="mminus">M-</button>
+
+                <div class="keys-row-label">Funkcje naukowe</div>
+
+                <button class="btn btn-sm" data-action="pi">π</button>
+                <button class="btn btn-sm" data-action="e">e</button>
+                <button class="btn btn-sm" data-action="pow2">x²</button>
+                <button class="btn btn-sm" data-action="sqrt">√x</button>
+
+                <button class="btn btn-sm" data-action="inv">1/x</button>
+                <button class="btn btn-sm" data-action="abs">|x|</button>
+                <button class="btn btn-sm" data-value="(">(</button>
+                <button class="btn btn-sm" data-value=")">)</button>
+
+                <button class="btn btn-sm" data-action="sin">sin</button>
+                <button class="btn btn-sm" data-action="cos">cos</button>
+                <button class="btn btn-sm" data-action="tan">tan</button>
+                <button class="btn btn-sm" data-action="ans">ANS</button>
+
+                <button class="btn btn-danger btn-sm" data-action="clear">AC</button>
+                <button class="btn btn-sm" data-action="backspace">⌫</button>
+                <button class="btn btn-operator" data-value="%">%</button>
+                <button class="btn btn-accent btn-wide" data-action="equals">=</button>
+            </div>
+
+            <!-- Historia -->
+            <div class="history">
+                <div class="history-header">
+                    <span>Historia obliczeń</span>
+                    <button id="historyClearBtn" type="button">Wyczyść</button>
+                </div>
+                <div id="historyList" class="history-list">
+                    <div class="history-empty">Brak zapisanych obliczeń.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WALUTY / KRYPTO / POGODA / JEDNOSTKI / PROMILE -->
+        <section class="currency">
+            <div class="currency-header">
+                <h2>
+                    <span class="leaf">🌿</span>
+                    WALUTY & KRYPTOWALUTY
+                </h2>
+                <span class="badge">Kursy z internetu (live)</span>
+            </div>
+
+            <div class="currency-row">
+                <label for="amount">Kwota</label>
+                <input id="amount" type="number" value="1" min="0" step="0.01">
+            </div>
+
+            <div class="currency-row">
+                <label>Waluty</label>
+                <select id="fromCurrency">
+                    <option value="PLN">PLN – Złoty</option>
+                    <option value="EUR">EUR – Euro (m.in. Hiszpania, Irlandia)</option>
+                    <option value="USD">USD – Dolar amerykański (m.in. Portoryko)</option>
+                    <option value="GBP">GBP – Funt brytyjski</option>
+                    <option value="CHF">CHF – Frank szwajcarski</option>
+                    <option value="JPY">JPY – Jen japoński</option>
+                    <option value="CNY">CNY – Yuan chiński</option>
+                    <option value="CAD">CAD – Dolar kanadyjski</option>
+                    <option value="AUD">AUD – Dolar australijski</option>
+                    <option value="CZK">CZK – Korona czeska</option>
+                    <option value="SEK">SEK – Korona szwedzka</option>
+                    <option value="NOK">NOK – Korona norweska</option>
+                    <option value="UAH">UAH – Hrywna ukraińska</option>
+                    <option value="BRL">BRL – Real brazylijski</option>
+                    <option value="ARS">ARS – Peso argentyńskie</option>
+                    <option value="MXN">MXN – Peso meksykańskie</option>
+                    <option value="THB">THB – Bat tajski</option>
+                    <option value="VND">VND – Dong wietnamski</option>
+                    <option value="ISK">ISK – Korona islandzka</option>
+                    <option value="UYU">UYU – Peso urugwajskie</option>
+                    <option value="BYN">BYN – Rubel białoruski</option>
+                    <option value="BTC">BTC – Bitcoin</option>
+                    <option value="ETH">ETH – Ethereum</option>
+                    <option value="USDT">USDT – Tether</option>
+                </select>
+                <div id="swapBtn" class="swap" title="Zamień waluty">⇄</div>
+                <select id="toCurrency">
+                    <option value="EUR">EUR – Euro (m.in. Hiszpania, Irlandia)</option>
+                    <option value="PLN" selected>PLN – Złoty</option>
+                    <option value="USD">USD – Dolar amerykański (m.in. Portoryko)</option>
+                    <option value="GBP">GBP – Funt brytyjski</option>
+                    <option value="CHF">CHF – Frank szwajcarski</option>
+                    <option value="JPY">JPY – Jen japoński</option>
+                    <option value="CNY">CNY – Yuan chiński</option>
+                    <option value="CAD">CAD – Dolar kanadyjski</option>
+                    <option value="AUD">AUD – Dolar australijski</option>
+                    <option value="CZK">CZK – Korona czeska</option>
+                    <option value="SEK">SEK – Korona szwedzka</option>
+                    <option value="NOK">NOK – Korona norweska</option>
+                    <option value="UAH">UAH – Hrywna ukraińska</option>
+                    <option value="BRL">BRL – Real brazylijski</option>
+                    <option value="ARS">ARS – Peso argentyńskie</option>
+                    <option value="MXN">MXN – Peso meksykańskie</option>
+                    <option value="THB">THB – Bat tajski</option>
+                    <option value="VND">VND – Dong wietnamski</option>
+                    <option value="ISK">ISK – Korona islandzka</option>
+                    <option value="UYU">UYU – Peso urugwajskie</option>
+                    <option value="BYN">BYN – Rubel białoruski</option>
+                    <option value="BTC">BTC – Bitcoin</option>
+                    <option value="ETH">ETH – Ethereum</option>
+                    <option value="USDT">USDT – Tether</option>
+                </select>
+            </div>
+
+            <button id="convertBtn" type="button">Przelicz</button>
+
+            <div id="currentPair"></div>
+
+            <div class="result">
+                <span>Wynik:</span>
+                <strong id="resultValue">0.00</strong>
+            </div>
+
+            <div class="rate-status">
+                <span id="rateStatus">Ładowanie kursów...</span>
+                <button id="refreshRatesBtn" type="button">Odśwież kursy</button>
+            </div>
+
+            <div class="rate-table-wrapper">
+                <div class="rate-table-title">Aktualne kursy w PLN (1 jednostka)</div>
+                <table class="rate-table">
+                    <thead>
+                        <tr>
+                            <th>Waluta</th>
+                            <th>≈ PLN</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rateTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- POGODA POLSKA – TRYB PRO -->
+            <div class="weather-block">
+                <div class="weather-header">
+                    <span>Pogoda PRO – miasta w Polsce (online)</span>
+                </div>
+                <div class="currency-row" style="margin-top:2px;">
+                    <label>Miasto</label>
+                    <input id="weatherCity" type="text" value="Warszawa" placeholder="np. Warszawa, Kraków, Gdańsk">
+                    <button id="weatherBtn" type="button" style="min-width:86px;">Pogoda</button>
+                </div>
+                <div class="weather-main" id="weatherMain">
+                    <span>Wpisz polskie miasto i kliknij „Pogoda”.</span>
+                </div>
+                <div class="weather-extra" id="weatherExtra"></div>
+                <div class="weather-warnings" id="weatherWarnings"></div>
+            </div>
+
+            <!-- KONWERTERY JEDNOSTEK + PROMILE -->
+            <div class="converters">
+                <div class="conv-header">Konwertery jednostek</div>
+
+                <!-- Długość / prędkość -->
+                <div class="conv-group-title">Długość / prędkość (mile ↔ kilometry)</div>
+                <div class="conv-row">
+                    <input id="lenValue" type="number" step="0.0001" placeholder="wartość">
+                    <select id="lenFrom">
+                        <option value="km">km</option>
+                        <option value="m">m</option>
+                        <option value="mile">mile</option>
+                    </select>
+                    <span style="font-size:0.75rem;">→</span>
+                    <select id="lenTo">
+                        <option value="km">km</option>
+                        <option value="m">m</option>
+                        <option value="mile">mile</option>
+                    </select>
+                    <button id="lenBtn" type="button">OK</button>
+                </div>
+                <div class="conv-row">
+                    <input id="speedValue" type="number" step="0.0001" placeholder="prędkość">
+                    <select id="speedFrom">
+                        <option value="kmh">km/h</option>
+                        <option value="mph">mph</option>
+                    </select>
+                    <span style="font-size:0.75rem;">→</span>
+                    <select id="speedTo">
+                        <option value="kmh">km/h</option>
+                        <option value="mph">mph</option>
+                    </select>
+                    <button id="speedBtn" type="button">OK</button>
+                </div>
+                <div class="conv-result" id="lenResult"></div>
+
+                <!-- Masa / objętość -->
+                <div class="conv-group-title">Masa (g, dag, kg, t)</div>
+                <div class="conv-row">
+                    <input id="massValue" type="number" step="0.0001" placeholder="masa">
+                    <select id="massFrom">
+                        <option value="g">g</option>
+                        <option value="dag">dag</option>
+                        <option value="kg">kg</option>
+                        <option value="t">t</option>
+                    </select>
+                    <span style="font-size:0.75rem;">→</span>
+                    <select id="massTo">
+                        <option value="g">g</option>
+                        <option value="dag">dag</option>
+                        <option value="kg">kg</option>
+                        <option value="t">t</option>
+                    </select>
+                    <button id="massBtn" type="button">OK</button>
+                </div>
+                <div class="conv-group-title">Objętość (ml, l, m³)</div>
+                <div class="conv-row">
+                    <input id="volValue" type="number" step="0.0001" placeholder="objętość">
+                    <select id="volFrom">
+                        <option value="ml">ml</option>
+                        <option value="l">l</option>
+                        <option value="m3">m³</option>
+                    </select>
+                    <span style="font-size:0.75rem;">→</span>
+                    <select id="volTo">
+                        <option value="ml">ml</option>
+                        <option value="l">l</option>
+                        <option value="m3">m³</option>
+                    </select>
+                    <button id="volBtn" type="button">OK</button>
+                </div>
+                <div class="conv-result" id="massVolResult"></div>
+
+                <!-- Dane (GB, TB itd.) -->
+                <div class="conv-group-title">Dane (B, KB, MB, GB, TB, PB)</div>
+                <div class="conv-row">
+                    <input id="dataValue" type="number" step="0.0001" placeholder="rozmiar danych">
+                    <select id="dataFrom">
+                        <option value="B">B</option>
+                        <option value="KB">KB</option>
+                        <option value="MB">MB</option>
+                        <option value="GB">GB</option>
+                        <option value="TB">TB</option>
+                        <option value="PB">PB</option>
+                    </select>
+                    <span style="font-size:0.75rem;">→</span>
+                    <select id="dataTo">
+                        <option value="B">B</option>
+                        <option value="KB">KB</option>
+                        <option value="MB">MB</option>
+                        <option value="GB" selected>GB</option>
+                        <option value="TB">TB</option>
+                        <option value="PB">PB</option>
+                    </select>
+                    <button id="dataBtn" type="button">OK</button>
+                </div>
+                <div class="conv-result" id="dataResult"></div>
+
+                <!-- Alkohol / promile – pojedyncza tura -->
+                <div class="conv-group-title">Alkohol / promile (pojedyncza tura, szacunkowo)</div>
+                <div class="conv-row">
+                    <input id="alcWeight" type="number" step="0.1" placeholder="masa ciała (kg)">
+                    <select id="alcSex">
+                        <option value="M">Mężczyzna</option>
+                        <option value="K">Kobieta</option>
+                    </select>
+                </div>
+                <div class="conv-row">
+                    <input id="alcDrinks" type="number" step="1" min="1" value="1" placeholder="liczba porcji">
+                    <select id="alcType">
+                        <option value="beer">Piwo 0,5 L ~5%</option>
+                        <option value="strong_beer">Piwo mocne 0,5 L ~7%</option>
+                        <option value="wine">Wino 175 ml ~12%</option>
+                        <option value="wine250">Wino 250 ml ~12%</option>
+                        <option value="vodka40">Wódka 40 ml ~40%</option>
+                        <option value="vodka100">Wódka 100 ml ~40%</option>
+                    </select>
+                    <input id="alcAbv" type="number" step="0.1" placeholder="Moc (%)">
+                    <button id="alcBtn" type="button">OK</button>
+                </div>
+                <div class="conv-result" id="alcResult"></div>
+
+                <!-- Alkohol / promile – scenariusz wieloetapowy -->
+                <div class="conv-group-title">Alkohol – scenariusz wieloetapowy (kilka tur picia)</div>
+                <div class="conv-row" style="font-size:0.74rem;color:var(--text-muted);">
+                    <span>Wpisz dla każdej tury: porcji, typ, moc (%) i ile godzin temu była wypita (np. 0 – teraz, 2 – 2h temu).</span>
+                </div>
+
+                <!-- Tura 1 -->
+                <div class="conv-row">
+                    <input id="alcMulti1Drinks" type="number" step="1" min="0" placeholder="porcji (np. 2)">
+                    <select id="alcMulti1Type">
+                        <option value="beer">Piwo 0,5 L</option>
+                        <option value="strong_beer">Piwo mocne 0,5 L</option>
+                        <option value="wine">Wino 175 ml</option>
+                        <option value="wine250">Wino 250 ml</option>
+                        <option value="vodka40">Wódka 40 ml</option>
+                        <option value="vodka100">Wódka 100 ml</option>
+                    </select>
+                    <input id="alcMulti1Abv" type="number" step="0.1" placeholder="%">
+                    <input id="alcMulti1Hours" type="number" step="0.1" placeholder="godz. temu (np. 0)">
+                </div>
+                <!-- Tura 2 -->
+                <div class="conv-row">
+                    <input id="alcMulti2Drinks" type="number" step="1" min="0" placeholder="porcji (np. 3)">
+                    <select id="alcMulti2Type">
+                        <option value="beer">Piwo 0,5 L</option>
+                        <option value="strong_beer">Piwo mocne 0,5 L</option>
+                        <option value="wine">Wino 175 ml</option>
+                        <option value="wine250">Wino 250 ml</option>
+                        <option value="vodka40">Wódka 40 ml</option>
+                        <option value="vodka100">Wódka 100 ml</option>
+                    </select>
+                    <input id="alcMulti2Abv" type="number" step="0.1" placeholder="%">
+                    <input id="alcMulti2Hours" type="number" step="0.1" placeholder="godz. temu (np. 2)">
+                </div>
+                <!-- Tura 3 -->
+                <div class="conv-row">
+                    <input id="alcMulti3Drinks" type="number" step="1" min="0" placeholder="porcji (np. 2)">
+                    <select id="alcMulti3Type">
+                        <option value="beer">Piwo 0,5 L</option>
+                        <option value="strong_beer">Piwo mocne 0,5 L</option>
+                        <option value="wine">Wino 175 ml</option>
+                        <option value="wine250">Wino 250 ml</option>
+                        <option value="vodka40">Wódka 40 ml</option>
+                        <option value="vodka100">Wódka 100 ml</option>
+                    </select>
+                    <input id="alcMulti3Abv" type="number" step="0.1" placeholder="%">
+                    <input id="alcMulti3Hours" type="number" step="0.1" placeholder="godz. temu (np. 4)">
+                </div>
+                <div class="conv-row" style="justify-content:flex-end;">
+                    <button id="alcMultiBtn" type="button">OK – wiele tur</button>
+                </div>
+                <div class="conv-result" id="alcMultiResult"></div>
+            </div>
+
+            <p class="hint">
+                Kursy FIAT (PLN/EUR/USD/GBP/CHF/JPY/CNY/CAD/AUD/CZK/SEK/NOK/UAH/BRL/ARS/MXN/THB/VND/ISK/UYU/BYN)
+                pobierane są z jednego globalnego endpointu (baza: PLN). Hiszpania i Irlandia używają EUR, Portoryko – USD.
+                Kursy krypto (BTC/ETH/USDT) pobierane z serwisu z cenami kryptowalut.
+                Pogoda PRO: temperatura, odczuwalna, wilgotność, opady deszczu/śniegu, wiatr, wschód/zachód słońca,
+                automatyczne ostrzeżenia o deszczu, śniegu, gołoledzi, śnieżycach i burzach z wyróżnieniem na czerwono.
+                Kalkulator alkoholu ma charakter orientacyjny – nie używaj go do podejmowania decyzji o prowadzeniu pojazdów.
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <span>Tryb ekspert: funkcje naukowe + pamięć + historia + FX + pogoda PRO PL + konwertery jednostek + promile.</span>
+        <span class="highlight">Motyw: czarny + zielone liście konopi 🌿</span>
+    </footer>
+</div>
+
+<script>
+    // -------- Kalkulator --------
+    let expression = "";
+    let lastResult = null;
+    let memoryValue = 0;
+    let hasMemory = false;
+    let history = [];
+    const maxHistory = 50;
+
+    const mainDisplay = document.getElementById('main-display');
+    const secondaryDisplay = document.getElementById('secondary-display');
+    const memoryDisplay = document.getElementById('memory-display');
+    const basicKeys = document.getElementById('basic-keys');
+    const expertKeys = document.getElementById('expert-keys');
+    const modeBasicBtn = document.getElementById('mode-basic');
+    const modeExpertBtn = document.getElementById('mode-expert');
+
+    const historyList = document.getElementById('historyList');
+    const historyClearBtn = document.getElementById('historyClearBtn');
+
+    function updateHistoryView() {
+        historyList.innerHTML = "";
+        if (!history.length) {
+            const empty = document.createElement('div');
+            empty.className = 'history-empty';
+            empty.textContent = 'Brak zapisanych obliczeń.';
+            historyList.appendChild(empty);
+            return;
+        }
+
+        history.forEach((item) => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.dataset.expr = item.expr;
+            div.dataset.result = item.result;
+
+            const exp = document.createElement('div');
+            exp.className = 'history-exp';
+            exp.textContent = item.expr + ' =';
+
+            const res = document.createElement('div');
+            res.className = 'history-res';
+            res.textContent = item.result;
+
+            div.appendChild(exp);
+            div.appendChild(res);
+            historyList.appendChild(div);
+        });
+    }
+
+    function addToHistory(expr, result) {
+        if (!expr) return;
+        const entry = { expr: String(expr), result: String(result) };
+        history.unshift(entry);
+        if (history.length > maxHistory) history.pop();
+        updateHistoryView();
+    }
+
+    function updateMemoryDisplay() {
+        if (!hasMemory || !isFinite(memoryValue)) {
+            memoryDisplay.textContent = "";
+        } else {
+            memoryDisplay.innerHTML = 'M: <span>' + formatNumber(memoryValue) + '</span>';
+        }
+    }
+
+    function updateDisplay() {
+        mainDisplay.value = expression || "0";
+        if (lastResult !== null) {
+            secondaryDisplay.textContent = "ANS: " + lastResult;
+        } else {
+            secondaryDisplay.textContent = "";
+        }
+        updateMemoryDisplay();
+    }
+
+    function appendToExpression(value) {
+        if (value === ".") value = ".";
+        expression += value;
+        updateDisplay();
+    }
+
+    function clearAll() {
+        expression = "";
+        lastResult = null;
+        updateDisplay();
+    }
+
+    function backspace() {
+        expression = expression.slice(0, -1);
+        updateDisplay();
+    }
+
+    function evaluateRaw(expr) {
+        const safeExpr = expr
+            .replace(/÷/g, "/")
+            .replace(/×/g, "*")
+            .replace(/,/g, ".")
+            .replace(/%/g, "*0.01");
+
+        const result = Function('"use strict"; return (' + safeExpr + ")")();
+        if (typeof result !== "number" || !isFinite(result)) {
+            throw new Error("Błędne wyrażenie");
+        }
+        return result;
+    }
+
+    function formatNumber(num) {
+        const rounded = parseFloat(num.toFixed(10));
+        return rounded.toString()
+            .replace(/\.0+$/, "")
+            .replace(/(\.\d*[1-9])0+$/, "$1");
+    }
+
+    function equals() {
+        if (!expression) return;
+        try {
+            const exprText = expression;
+            const result = evaluateRaw(expression);
+            lastResult = formatNumber(result);
+            expression = lastResult.toString();
+            updateDisplay();
+            addToHistory(exprText, lastResult);
+        } catch (e) {
+            showError();
+        }
+    }
+
+    function toggleSign() {
+        if (!expression) return;
+        try {
+            const current = evaluateRaw(expression);
+            expression = (-current).toString();
+            updateDisplay();
+        } catch (e) {
+            showError();
+        }
+    }
+
+    function applyUnary(fnName) {
+        if (!expression) return;
+        try {
+            const value = evaluateRaw(expression);
+            let result;
+            switch (fnName) {
+                case "sqrt":
+                    if (value < 0) throw new Error("sqrt < 0");
+                    result = Math.sqrt(value);
+                    break;
+                case "pow2":
+                    result = Math.pow(value, 2);
+                    break;
+                case "inv":
+                    if (value === 0) throw new Error("1/0");
+                    result = 1 / value;
+                    break;
+                case "abs":
+                    result = Math.abs(value);
+                    break;
+                case "sin":
+                    result = Math.sin(value);
+                    break;
+                case "cos":
+                    result = Math.cos(value);
+                    break;
+                case "tan":
+                    result = Math.tan(value);
+                    break;
+                default:
+                    return;
+            }
+            lastResult = formatNumber(result);
+            const exprText = fnName + "(" + value + ")";
+            expression = lastResult.toString();
+            updateDisplay();
+            addToHistory(exprText, lastResult);
+        } catch (e) {
+            showError();
+        }
+    }
+
+    function insertConstant(constName) {
+        let value;
+        if (constName === "pi") value = Math.PI;
+        else if (constName === "e") value = Math.E;
+        else return;
+
+        if (!expression || expression === "0") {
+            expression = value.toString();
+        } else {
+            expression += value.toString();
+        }
+        updateDisplay();
+    }
+
+    function useAns() {
+        if (lastResult === null) return;
+        if (!expression || expression === "0") {
+            expression = lastResult.toString();
+        } else {
+            expression += lastResult.toString();
+        }
+        updateDisplay();
+    }
+
+    function currentNumericValue() {
+        try {
+            if (expression) {
+                return evaluateRaw(expression);
+            } else if (lastResult !== null) {
+                const v = parseFloat(String(lastResult).replace(",", "."));
+                if (!isNaN(v)) return v;
+            }
+        } catch (e) {
+            // ignorujemy błąd wyrażenia przy pamięci
+        }
+        return 0;
+    }
+
+    function handleMemory(action) {
+        switch (action) {
+            case "mc":
+                memoryValue = 0;
+                hasMemory = false;
+                break;
+            case "mr":
+                if (hasMemory) {
+                    expression = memoryValue.toString();
+                }
+                break;
+            case "mplus":
+                memoryValue += currentNumericValue();
+                hasMemory = true;
+                break;
+            case "mminus":
+                memoryValue -= currentNumericValue();
+                hasMemory = true;
+                break;
+        }
+        updateDisplay();
+    }
+
+    function showError() {
+        mainDisplay.value = "Błąd";
+        secondaryDisplay.textContent = "";
+        expression = "";
+    }
+
+    function handleButtonClick(e) {
+        const target = e.target.closest("button");
+        if (!target) return;
+
+        const value = target.getAttribute("data-value");
+        const action = target.getAttribute("data-action");
+
+        if (value !== null) {
+            appendToExpression(value);
+            return;
+        }
+
+        if (!action) return;
+
+        if (["mc","mr","mplus","mminus"].includes(action)) {
+            handleMemory(action);
+            return;
+        }
+
+        switch (action) {
+            case "clear":
+                clearAll();
+                break;
+            case "backspace":
+                backspace();
+                break;
+            case "equals":
+                equals();
+                break;
+            case "sign":
+                toggleSign();
+                break;
+            case "sqrt":
+            case "pow2":
+            case "inv":
+            case "abs":
+            case "sin":
+            case "cos":
+            case "tan":
+                applyUnary(action);
+                break;
+            case "pi":
+                insertConstant("pi");
+                break;
+            case "e":
+                insertConstant("e");
+                break;
+            case "ans":
+                useAns();
+                break;
+        }
+    }
+
+    basicKeys.addEventListener("click", handleButtonClick);
+    expertKeys.addEventListener("click", handleButtonClick);
+
+    modeBasicBtn.addEventListener("click", function () {
+        modeBasicBtn.classList.add("active");
+        modeExpertBtn.classList.remove("active");
+        basicKeys.classList.remove("hidden");
+        expertKeys.classList.add("hidden");
+    });
+
+    modeExpertBtn.addEventListener("click", function () {
+        modeExpertBtn.classList.add("active");
+        modeBasicBtn.classList.remove("active");
+        basicKeys.classList.add("hidden");
+        expertKeys.classList.remove("hidden");
+    });
+
+    historyList.addEventListener('click', function (e) {
+        const item = e.target.closest('.history-item');
+        if (!item) return;
+        const expr = item.dataset.expr;
+        const result = item.dataset.result;
+        expression = expr;
+        lastResult = result;
+        secondaryDisplay.textContent = expr + " = " + result;
+        updateDisplay();
+    });
+
+    historyClearBtn.addEventListener('click', function () {
+        history = [];
+        updateHistoryView();
+    });
+
+    updateDisplay();
+    updateHistoryView();
+
+    // -------- FX / Krypto --------
+    const fxState = {
+        fiat: {},
+        crypto: {},
+        lastUpdated: null,
+        loading: false
+    };
+
+    const amountInput = document.getElementById("amount");
+    const fromSelect = document.getElementById("fromCurrency");
+    const toSelect = document.getElementById("toCurrency");
+    const convertBtn = document.getElementById("convertBtn");
+    const resultValue = document.getElementById("resultValue");
+    const swapBtn = document.getElementById("swapBtn");
+    const rateStatus = document.getElementById("rateStatus");
+    const refreshRatesBtn = document.getElementById("refreshRatesBtn");
+    const currentPairLabel = document.getElementById("currentPair");
+    const rateTableBody = document.getElementById("rateTableBody");
+
+    const quickFrom = document.getElementById("quickFrom");
+    const quickTo = document.getElementById("quickTo");
+    const quickFxBtn = document.getElementById("quickFxBtn");
+
+    function formatTime(date) {
+        if (!date) return "";
+        const h = String(date.getHours()).padStart(2, "0");
+        const m = String(date.getMinutes()).padStart(2, "0");
+        const s = String(date.getSeconds()).padStart(2, "0");
+        return `${h}:${m}:${s}`;
+    }
+
+    async function fetchFiatRates() {
+        const url = "https://open.er-api.com/v6/latest/PLN";
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Błąd kursów FIAT");
+        const data = await res.json();
+        const needed = [
+            "EUR","USD","GBP","CHF","JPY","CNY","CAD","AUD","CZK","SEK","NOK",
+            "UAH","BRL","ARS","MXN","THB","VND","ISK","UYU","BYN"
+        ];
+        fxState.fiat = {};
+        needed.forEach(code => {
+            if (data.rates && data.rates[code] != null) {
+                fxState.fiat[code] = data.rates[code];
+            }
+        });
+        fxState.fiat["PLN"] = 1;
+    }
+
+    async function fetchCryptoRates() {
+        const url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether&vs_currencies=pln";
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Błąd kursów krypto");
+        const data = await res.json();
+        fxState.crypto = {
+            BTC: data.bitcoin && data.bitcoin.pln,
+            ETH: data.ethereum && data.ethereum.pln,
+            USDT: data.tether && data.tether.pln
+        };
+    }
+
+    function updateRateTable() {
+        rateTableBody.innerHTML = "";
+        if (!fxState.lastUpdated) {
+            const tr = document.createElement("tr");
+            const td1 = document.createElement("td");
+            const td2 = document.createElement("td");
+            td1.textContent = "Ładowanie...";
+            td2.textContent = "";
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            rateTableBody.appendChild(tr);
+            return;
+        }
+
+        const codes = [
+            "PLN","EUR","USD","GBP","CHF","JPY","CNY","CAD","AUD",
+            "CZK","SEK","NOK","UAH","BRL","ARS","MXN","THB","VND","ISK","UYU","BYN",
+            "BTC","ETH","USDT"
+        ];
+
+        codes.forEach(code => {
+            let valuePLN;
+            if (code === "PLN") {
+                valuePLN = 1;
+            } else if (fxState.fiat[code] !== undefined) {
+                valuePLN = 1 / fxState.fiat[code];
+            } else if (fxState.crypto[code] !== undefined) {
+                valuePLN = fxState.crypto[code];
+            } else {
+                valuePLN = null;
+            }
+
+            const tr = document.createElement("tr");
+            const tdCode = document.createElement("td");
+            const tdVal = document.createElement("td");
+
+            tdCode.textContent = code;
+            if (valuePLN === null || !isFinite(valuePLN)) {
+                tdVal.textContent = "—";
+            } else {
+                const absVal = Math.abs(valuePLN);
+                if (absVal < 1 && absVal !== 0) {
+                    tdVal.textContent = valuePLN.toFixed(8);
+                } else {
+                    tdVal.textContent = valuePLN.toFixed(4);
+                }
+            }
+            tr.appendChild(tdCode);
+            tr.appendChild(tdVal);
+            rateTableBody.appendChild(tr);
+        });
+    }
+
+    async function refreshRates() {
+        if (fxState.loading) return;
+        try {
+            fxState.loading = true;
+            rateStatus.textContent = "Pobieram kursy...";
+            updateRateTable();
+            await Promise.all([fetchFiatRates(), fetchCryptoRates()]);
+            fxState.lastUpdated = new Date();
+            rateStatus.textContent = "Kursy zaktualizowane: " + formatTime(fxState.lastUpdated);
+            updateCurrentPairLabel();
+            updateRateTable();
+        } catch (e) {
+            rateStatus.textContent = "Błąd pobierania kursów – sprawdź internet.";
+        } finally {
+            fxState.loading = false;
+        }
+    }
+
+    function convertAmountGeneric(amount, from, to) {
+        if (!fxState.lastUpdated) throw new Error("Brak kursów");
+        if (from === to) return amount;
+
+        let amountPLN;
+
+        if (fxState.fiat[from] !== undefined) {
+            if (from === "PLN") {
+                amountPLN = amount;
+            } else {
+                amountPLN = amount / fxState.fiat[from];
+            }
+        } else if (fxState.crypto[from] !== undefined) {
+            amountPLN = amount * fxState.crypto[from];
+        } else {
+            throw new Error("Nieznana waluta źródłowa");
+        }
+
+        let result;
+        if (fxState.fiat[to] !== undefined) {
+            if (to === "PLN") {
+                result = amountPLN;
+            } else {
+                result = amountPLN * fxState.fiat[to];
+            }
+        } else if (fxState.crypto[to] !== undefined) {
+            result = amountPLN / fxState.crypto[to];
+        } else {
+            throw new Error("Nieznana waluta docelowa");
+        }
+
+        return result;
+    }
+
+    function convertPanel() {
+        const amount = parseFloat(amountInput.value);
+        if (isNaN(amount)) {
+            resultValue.textContent = "Błędna kwota";
+            return;
+        }
+        try {
+            const from = fromSelect.value;
+            const to = toSelect.value;
+            const result = convertAmountGeneric(amount, from, to);
+            const formatted = (Math.abs(result) < 1 && result !== 0)
+                ? result.toFixed(8)
+                : result.toFixed(4);
+            resultValue.textContent = formatted + " " + to;
+        } catch (e) {
+            resultValue.textContent = "Brak kursów";
+        }
+    }
+
+    function swapCurrencies() {
+        const oldFrom = fromSelect.value;
+        fromSelect.value = toSelect.value;
+        toSelect.value = oldFrom;
+        updateCurrentPairLabel();
+    }
+
+    function updateCurrentPairLabel() {
+        if (!fxState.lastUpdated) {
+            currentPairLabel.textContent = "Kursy jeszcze się ładują...";
+            return;
+        }
+        const from = fromSelect.value;
+        const to = toSelect.value;
+        try {
+            const rate = convertAmountGeneric(1, from, to);
+            const fixed = (Math.abs(rate) < 1 && rate !== 0) ? rate.toFixed(8) : rate.toFixed(4);
+            currentPairLabel.textContent = `1 ${from} ≈ ${fixed} ${to}`;
+        } catch (e) {
+            currentPairLabel.textContent = "Brak kursu dla wybranego zestawu.";
+        }
+    }
+
+    convertBtn.addEventListener("click", convertPanel);
+    swapBtn.addEventListener("click", function () {
+        swapCurrencies();
+        convertPanel();
+    });
+    refreshRatesBtn.addEventListener("click", refreshRates);
+
+    amountInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") convertPanel();
+    });
+
+    fromSelect.addEventListener("change", function () {
+        updateCurrentPairLabel();
+        convertPanel();
+    });
+    toSelect.addEventListener("change", function () {
+        updateCurrentPairLabel();
+        convertPanel();
+    });
+
+    quickFxBtn.addEventListener("click", function () {
+        let val = mainDisplay.value.replace(",", ".");
+        const amount = parseFloat(val);
+        if (isNaN(amount)) {
+            secondaryDisplay.textContent = "Brak liczby do przeliczenia";
+            return;
+        }
+        const from = quickFrom.value;
+        const to = quickTo.value;
+        try {
+            const result = convertAmountGeneric(amount, from, to);
+            const formatted = (Math.abs(result) < 1 && result !== 0)
+                ? result.toFixed(8)
+                : result.toFixed(4);
+            lastResult = formatted;
+            expression = formatted.toString();
+            mainDisplay.value = expression;
+            secondaryDisplay.textContent = amount + " " + from + " ≈ " + formatted + " " + to;
+            updateMemoryDisplay();
+            addToHistory(amount + " " + from + " → " + to, formatted + " " + to);
+        } catch (e) {
+            secondaryDisplay.textContent = "Brak kursów – odśwież.";
+        }
+    });
+
+    // -------- Pogoda – Polska PRO --------
+    const weatherCityInput = document.getElementById("weatherCity");
+    const weatherBtn = document.getElementById("weatherBtn");
+    const weatherMain = document.getElementById("weatherMain");
+    const weatherExtra = document.getElementById("weatherExtra");
+    const weatherWarnings = document.getElementById("weatherWarnings");
+
+    function windDirectionText(deg) {
+        if (deg == null || isNaN(deg)) return "";
+        const dirs = ["N","NE","E","SE","S","SW","W","NW"];
+        const i = Math.round(deg / 45) % 8;
+        return dirs[i];
+    }
+
+    function formatHourMinute(isoString) {
+        if (!isoString) return "";
+        const d = new Date(isoString);
+        const hh = String(d.getHours()).padStart(2, "0");
+        const mm = String(d.getMinutes()).padStart(2, "0");
+        return hh + ":" + mm;
+    }
+
+    function describeWeatherCode(code) {
+        // uproszczony opis wg WMO (Open-Meteo)
+        if (code == null) return "brak opisu";
+        if (code === 0) return "bezchmurnie";
+        if (code === 1 || code === 2) return "częściowo zachmurzone";
+        if (code === 3) return "zachmurzone";
+        if (code === 45 || code === 48) return "mgła / zamglenia";
+        if (code >= 51 && code <= 57) return "mżawka";
+        if (code >= 61 && code <= 67) return "deszcz";
+        if (code >= 71 && code <= 77) return "opady śniegu / śnieg z deszczem";
+        if (code >= 80 && code <= 82) return "przelotne opady deszczu";
+        if (code === 85 || code === 86) return "przelotne opady śniegu";
+        if (code === 95) return "burza";
+        if (code === 96 || code === 99) return "burza z gradem";
+        return "warunki mieszane";
+    }
+
+    async function fetchWeatherForCity(city) {
+        if (!city) {
+            weatherMain.innerHTML = "<span>Podaj nazwę miasta w Polsce.</span>";
+            weatherExtra.textContent = "";
+            weatherWarnings.textContent = "";
+            return;
+        }
+        try {
+            weatherMain.innerHTML = "<span>Ładuję pogodę...</span>";
+            weatherExtra.textContent = "";
+            weatherWarnings.textContent = "";
+
+            const geoUrl = "https://geocoding-api.open-meteo.com/v1/search?name="
+                + encodeURIComponent(city)
+                + "&country=Poland&count=1&language=pl&format=json";
+            const geoRes = await fetch(geoUrl);
+            if (!geoRes.ok) throw new Error("Błąd geokodowania");
+            const geoData = await geoRes.json();
+            if (!geoData.results || !geoData.results.length) {
+                weatherMain.innerHTML = "<span>Nie znaleziono takiego miasta w Polsce.</span>";
+                return;
+            }
+            const loc = geoData.results[0];
+            const lat = loc.latitude;
+            const lon = loc.longitude;
+
+            const meteoUrl = "https://api.open-meteo.com/v1/forecast?latitude="
+                + lat + "&longitude=" + lon
+                + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,rain,snowfall,weather_code,wind_speed_10m,wind_direction_10m"
+                + "&daily=sunrise,sunset&timezone=auto";
+            const meteoRes = await fetch(meteoUrl);
+            if (!meteoRes.ok) throw new Error("Błąd danych pogodowych");
+            const meteo = await meteoRes.json();
+
+            const cur = meteo.current || {};
+            const t = cur.temperature_2m;
+            const app = cur.apparent_temperature;
+            const rh = cur.relative_humidity_2m;
+            const precip = cur.precipitation || 0;
+            const rain = cur.rain || 0;
+            const snow = cur.snowfall || 0;
+            const wind = cur.wind_speed_10m || 0;
+            const windDir = cur.wind_direction_10m;
+            const code = cur.weather_code;
+
+            const daily = meteo.daily || {};
+            const sunrise = daily.sunrise && daily.sunrise[0];
+            const sunset = daily.sunset && daily.sunset[0];
+
+            const cityName = loc.name + (loc.admin1 ? ", " + loc.admin1 : "");
+
+            const tText = (t != null ? t.toFixed(1) + "°C" : "brak");
+            const appText = (app != null ? app.toFixed(1) + "°C" : "brak");
+            const rhText = (rh != null ? rh.toFixed(0) + "%" : "brak");
+            const desc = describeWeatherCode(code);
+
+            let mainLine =
+                `Miasto: <strong>${cityName}</strong> – temp.: <strong>${tText}</strong>` +
+                `, odczuwalna: <strong>${appText}</strong>` +
+                `, wilgotność: <strong>${rhText}</strong>` +
+                `<br>Warunki: <strong>${desc}</strong>`;
+
+            weatherMain.innerHTML = mainLine;
+
+            let blackIce = "";
+            if (t != null && precip > 0 && t >= -2 && t <= 1) {
+                blackIce = "Ryzyko gołoledzi – temperatura w okolicach 0°C i występują opady.";
+            } else if (t != null && t <= 0 && precip === 0 && snow === 0) {
+                blackIce = "Temperatura poniżej 0°C – możliwe lokalne oblodzenia.";
+            }
+
+            const rainText = rain.toFixed(2);
+            const snowText = snow.toFixed(2);
+            const precipText = precip.toFixed(2);
+            const windTxt = wind.toFixed(1) + " km/h " + windDirectionText(windDir);
+            const sunriseTxt = sunrise ? formatHourMinute(sunrise) : "—";
+            const sunsetTxt = sunset ? formatHourMinute(sunset) : "—";
+
+            weatherExtra.innerHTML =
+                `<span class="label">Opady deszczu:</span> <span class="value">${rainText} mm</span> | ` +
+                `<span class="label">Opady śniegu:</span> <span class="value">${snowText} mm</span> | ` +
+                `<span class="label">Opady łączne:</span> <span class="value">${precipText} mm</span><br>` +
+                `<span class="label">Wiatr:</span> <span class="value">${windTxt}</span><br>` +
+                `<span class="label">Wschód słońca:</span> <span class="value">${sunriseTxt}</span> | ` +
+                `<span class="label">Zachód słońca:</span> <span class="value">${sunsetTxt}</span>`;
+
+            // Zaawansowane ostrzeżenia – burze, śnieżyce, intensywne opady, gołoledź
+            const warningsStrong = [];
+            const warningsModerate = [];
+
+            // Burze / burze z gradem
+            if (code === 95) {
+                warningsStrong.push("BURZA – zalecana szczególna ostrożność na zewnątrz.");
+            }
+            if (code === 96 || code === 99) {
+                warningsStrong.push("BURZA Z GRADEM – bardzo niebezpieczne warunki, unikaj przebywania na otwartej przestrzeni.");
+            }
+
+            // Śnieżyca / intensywne opady śniegu
+            if ((code === 75 || code === 86 || code === 71 || code === 73 || code === 85) && snow > 1.0) {
+                warningsStrong.push("ŚNIEŻYCA / intensywne opady śniegu – możliwe bardzo trudne warunki drogowe.");
+            }
+
+            // Intensywne opady deszczu
+            if ((code >= 61 && code <= 67 || (code >= 80 && code <= 82)) && rain > 2.0) {
+                warningsModerate.push("Silniejsze opady deszczu – możliwe pogorszenie widoczności na drogach.");
+            }
+
+            // Mgła
+            if (code === 45 || code === 48) {
+                warningsModerate.push("Mgła / zamglenia – ograniczona widoczność.");
+            }
+
+            // Gołoledź / oblodzenia
+            if (blackIce) {
+                // jeśli nie ma innych silnych ostrzeżeń, traktujemy jako mocne (czerwone)
+                warningsStrong.push(blackIce);
+            }
+
+            if (!warningsStrong.length && !warningsModerate.length) {
+                weatherWarnings.innerHTML = "<span class='weather-warning-moderate'>Brak istotnych ostrzeżeń – warunki standardowe.</span>";
+            } else {
+                let html = "";
+                if (warningsStrong.length) {
+                    html += "<div class='weather-warning-strong'>";
+                    html += warningsStrong.map(w => "⚠ " + w).join("<br>");
+                    html += "</div>";
+                }
+                if (warningsModerate.length) {
+                    html += "<div class='weather-warning-moderate' style='margin-top:2px;'>";
+                    html += warningsModerate.map(w => "ℹ " + w).join("<br>");
+                    html += "</div>";
+                }
+                weatherWarnings.innerHTML = html;
+            }
+        } catch (e) {
+            weatherMain.innerHTML = "<span>Nie udało się pobrać pogody – sprawdź internet.</span>";
+            weatherExtra.textContent = "";
+            weatherWarnings.textContent = "";
+        }
+    }
+
+    weatherBtn.addEventListener("click", function () {
+        fetchWeatherForCity(weatherCityInput.value.trim());
+    });
+
+    weatherCityInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") fetchWeatherForCity(weatherCityInput.value.trim());
+    });
+
+    // -------- Konwertery jednostek --------
+    const lenValue = document.getElementById("lenValue");
+    const lenFrom = document.getElementById("lenFrom");
+    const lenTo = document.getElementById("lenTo");
+    const lenBtn = document.getElementById("lenBtn");
+    const speedValue = document.getElementById("speedValue");
+    const speedFrom = document.getElementById("speedFrom");
+    const speedTo = document.getElementById("speedTo");
+    const speedBtn = document.getElementById("speedBtn");
+    const lenResult = document.getElementById("lenResult");
+
+    const massValue = document.getElementById("massValue");
+    const massFrom = document.getElementById("massFrom");
+    const massTo = document.getElementById("massTo");
+    const massBtn = document.getElementById("massBtn");
+    const volValue = document.getElementById("volValue");
+    const volFrom = document.getElementById("volFrom");
+    const volTo = document.getElementById("volTo");
+    const volBtn = document.getElementById("volBtn");
+    const massVolResult = document.getElementById("massVolResult");
+
+    const dataValue = document.getElementById("dataValue");
+    const dataFrom = document.getElementById("dataFrom");
+    const dataTo = document.getElementById("dataTo");
+    const dataBtn = document.getElementById("dataBtn");
+    const dataResult = document.getElementById("dataResult");
+
+    const alcWeight = document.getElementById("alcWeight");
+    const alcSex = document.getElementById("alcSex");
+    const alcDrinks = document.getElementById("alcDrinks");
+    const alcType = document.getElementById("alcType");
+    const alcAbv = document.getElementById("alcAbv");
+    const alcBtn = document.getElementById("alcBtn");
+    const alcResult = document.getElementById("alcResult");
+
+    const alcMulti1Drinks = document.getElementById("alcMulti1Drinks");
+    const alcMulti1Type = document.getElementById("alcMulti1Type");
+    const alcMulti1Abv = document.getElementById("alcMulti1Abv");
+    const alcMulti1Hours = document.getElementById("alcMulti1Hours");
+
+    const alcMulti2Drinks = document.getElementById("alcMulti2Drinks");
+    const alcMulti2Type = document.getElementById("alcMulti2Type");
+    const alcMulti2Abv = document.getElementById("alcMulti2Abv");
+    const alcMulti2Hours = document.getElementById("alcMulti2Hours");
+
+    const alcMulti3Drinks = document.getElementById("alcMulti3Drinks");
+    const alcMulti3Type = document.getElementById("alcMulti3Type");
+    const alcMulti3Abv = document.getElementById("alcMulti3Abv");
+    const alcMulti3Hours = document.getElementById("alcMulti3Hours");
+
+    const alcMultiBtn = document.getElementById("alcMultiBtn");
+    const alcMultiResult = document.getElementById("alcMultiResult");
+
+    const lengthFactors = {
+        m: 1,
+        km: 1000,
+        mile: 1609.344
+    };
+
+    const speedFactors = {
+        kmh: 1,
+        mph: 1.609344
+    };
+
+    const massFactors = {
+        g: 0.001,
+        dag: 0.01,
+        kg: 1,
+        t: 1000
+    };
+
+    const volumeFactors = {
+        ml: 0.001,
+        l: 1,
+        m3: 1000
+    };
+
+    const dataFactors = {
+        B: 1,
+        KB: 1024,
+        MB: 1024 * 1024,
+        GB: 1024 * 1024 * 1024,
+        TB: 1024 * 1024 * 1024 * 1024,
+        PB: 1024 * 1024 * 1024 * 1024 * 1024
+    };
+
+    function convertGeneric(value, from, to, factors) {
+        if (!(from in factors) || !(to in factors)) {
+            throw new Error("Nieznana jednostka");
+        }
+        const base = value * factors[from];
+        return base / factors[to];
+    }
+
+    lenBtn.addEventListener("click", function () {
+        const v = parseFloat(lenValue.value);
+        if (isNaN(v)) {
+            lenResult.textContent = "Błędna wartość długości.";
+            return;
+        }
+        try {
+            const res = convertGeneric(v, lenFrom.value, lenTo.value, lengthFactors);
+            lenResult.innerHTML = `<span>${v}</span> ${lenFrom.value} ≈ <span>${res.toFixed(4)}</span> ${lenTo.value}`;
+        } catch (e) {
+            lenResult.textContent = "Błąd konwersji długości.";
+        }
+    });
+
+    speedBtn.addEventListener("click", function () {
+        const v = parseFloat(speedValue.value);
+        if (isNaN(v)) {
+            lenResult.textContent = "Błędna wartość prędkości.";
+            return;
+        }
+        try {
+            let res;
+            if (speedFrom.value === speedTo.value) {
+                res = v;
+            } else if (speedFrom.value === "kmh" && speedTo.value === "mph") {
+                res = v / speedFactors.mph;
+            } else if (speedFrom.value === "mph" && speedTo.value === "kmh") {
+                res = v * speedFactors.mph;
+            }
+            lenResult.innerHTML = `<span>${v}</span> ${speedFrom.value} ≈ <span>${res.toFixed(4)}</span> ${speedTo.value}`;
+        } catch (e) {
+            lenResult.textContent = "Błąd konwersji prędkości.";
+        }
+    });
+
+    massBtn.addEventListener("click", function () {
+        const v = parseFloat(massValue.value);
+        if (isNaN(v)) {
+            massVolResult.textContent = "Błędna wartość masy.";
+            return;
+        }
+        try {
+            const res = convertGeneric(v, massFrom.value, massTo.value, massFactors);
+            massVolResult.innerHTML = `<span>${v}</span> ${massFrom.value} ≈ <span>${res.toFixed(4)}</span> ${massTo.value}`;
+        } catch (e) {
+            massVolResult.textContent = "Błąd konwersji masy.";
+        }
+    });
+
+    volBtn.addEventListener("click", function () {
+        const v = parseFloat(volValue.value);
+        if (isNaN(v)) {
+            massVolResult.textContent = "Błędna wartość objętości.";
+            return;
+        }
+        try {
+            const res = convertGeneric(v, volFrom.value, volTo.value, volumeFactors);
+            massVolResult.innerHTML = `<span>${v}</span> ${volFrom.value} ≈ <span>${res.toFixed(4)}</span> ${volTo.value}`;
+        } catch (e) {
+            massVolResult.textContent = "Błąd konwersji objętości.";
+        }
+    });
+
+    dataBtn.addEventListener("click", function () {
+        const v = parseFloat(dataValue.value);
+        if (isNaN(v)) {
+            dataResult.textContent = "Błędna wartość danych.";
+            return;
+        }
+        try {
+            const res = convertGeneric(v, dataFrom.value, dataTo.value, dataFactors);
+            dataResult.innerHTML = `<span>${v}</span> ${dataFrom.value} ≈ <span>${res.toFixed(4)}</span> ${dataTo.value}`;
+        } catch (e) {
+            dataResult.textContent = "Błąd konwersji danych.";
+        }
+    });
+
+    // Alkohol – promile (prosty model Widmarka, orientacyjny)
+    const alcoholMap = {
+        beer:       { ml: 500, abv: 0.05 },
+        strong_beer:{ ml: 500, abv: 0.07 },
+        wine:       { ml: 175, abv: 0.12 },
+        wine250:    { ml: 250, abv: 0.12 },
+        vodka40:    { ml: 40,  abv: 0.40 },
+        vodka100:   { ml: 100, abv: 0.40 }
+    };
+
+    function setDefaultAbv(selectEl, abvInput) {
+        const item = alcoholMap[selectEl.value];
+        if (item && abvInput) {
+            abvInput.value = (item.abv * 100).toFixed(1);
+        }
+    }
+
+    // ustaw domyślne moce
+    setDefaultAbv(alcType, alcAbv);
+    setDefaultAbv(alcMulti1Type, alcMulti1Abv);
+    setDefaultAbv(alcMulti2Type, alcMulti2Abv);
+    setDefaultAbv(alcMulti3Type, alcMulti3Abv);
+
+    alcType.addEventListener("change", function () {
+        setDefaultAbv(alcType, alcAbv);
+    });
+    alcMulti1Type.addEventListener("change", function () {
+        setDefaultAbv(alcMulti1Type, alcMulti1Abv);
+    });
+    alcMulti2Type.addEventListener("change", function () {
+        setDefaultAbv(alcMulti2Type, alcMulti2Abv);
+    });
+    alcMulti3Type.addEventListener("change", function () {
+        setDefaultAbv(alcMulti3Type, alcMulti3Abv);
+    });
+
+    function calcAlcoholGrams(type, drinks, abvOverridePercent) {
+        const item = alcoholMap[type];
+        if (!item) return 0;
+        const density = 0.8; // g/ml
+        let abv = item.abv;  // domyślne (np. 0,05)
+        if (!isNaN(abvOverridePercent) && abvOverridePercent > 0) {
+            abv = abvOverridePercent / 100.0; // zamiana % -> ułamek
+        }
+        const gramsOne = item.ml * abv * density;
+        return gramsOne * drinks;
+    }
+
+    alcBtn.addEventListener("click", function () {
+        const weight = parseFloat(alcWeight.value);
+        const drinks = parseInt(alcDrinks.value, 10);
+
+        if (isNaN(weight) || weight <= 0 || isNaN(drinks) || drinks <= 0) {
+            alcResult.textContent = "Podaj masę ciała i liczbę porcji.";
+            return;
+        }
+
+        // odczyt mocy z pola – akceptujemy przecinek
+        let abvStr = (alcAbv.value || "").toString().replace(",", ".");
+        let abvPercent = parseFloat(abvStr);
+        if (isNaN(abvPercent) || abvPercent <= 0) {
+            // jeśli użytkownik nie podał sensownej wartości – użyj domyślnej z mapy
+            const defItem = alcoholMap[alcType.value];
+            abvPercent = defItem ? defItem.abv * 100 : 0;
+        }
+
+        const grams = calcAlcoholGrams(alcType.value, drinks, abvPercent);
+        const sex = alcSex.value;
+        const r = sex === "K" ? 0.6 : 0.7; // współczynnik dystrybucji
+        const promiles = grams / (weight * r); // Widmark – orientacyjnie
+        const promTxt = promiles.toFixed(2);
+
+        // orientacyjny czas eliminacji przy 0,15‰ / h
+        const eliminationRate = 0.15;
+        const hours = promiles / eliminationRate;
+        const hoursTxt = hours > 0 ? hours.toFixed(1) : "0.0";
+
+        alcResult.innerHTML =
+            `<span>Szacunkowo:</span> <span>${promTxt}</span> ‰ po wypiciu ${drinks} × ${alcType.options[alcType.selectedIndex].text} ` +
+            `(moc przyjęta: <span>${abvPercent.toFixed(1)}%</span>)` +
+            `<br><span>Domyślna eliminacja ~0,15‰/h → ok. <span>${hoursTxt}</span> h do wyzerowania.</span>` +
+            `<br><span>Uwaga: wynik jest orientacyjny i nie może być podstawą do decyzji o prowadzeniu pojazdów.</span>`;
+    });
+
+    function parseEpisode(drinksInput, typeSelect, abvInput, hoursInput) {
+        const drinks = parseFloat((drinksInput.value || "").replace(",", "."));
+        if (isNaN(drinks) || drinks <= 0) return null;
+
+        const type = typeSelect.value;
+        let abvStr = (abvInput.value || "").toString().replace(",", ".");
+        let abvPercent = parseFloat(abvStr);
+        if (isNaN(abvPercent) || abvPercent <= 0) {
+            const defItem = alcoholMap[type];
+            abvPercent = defItem ? defItem.abv * 100 : 0;
+        }
+
+        let hoursAgo = parseFloat((hoursInput.value || "").replace(",", "."));
+        if (isNaN(hoursAgo) || hoursAgo < 0) hoursAgo = 0;
+
+        return { drinks, type, abvPercent, hoursAgo };
+    }
+
+    alcMultiBtn.addEventListener("click", function () {
+        const weight = parseFloat(alcWeight.value);
+        const sex = alcSex.value;
+
+        if (isNaN(weight) || weight <= 0) {
+            alcMultiResult.textContent = "Podaj masę ciała (kg) u góry w sekcji promili.";
+            return;
+        }
+
+        const r = sex === "K" ? 0.6 : 0.7;
+        const eliminationRate = 0.15; // ‰ na godzinę
+
+        const episodes = [];
+        const e1 = parseEpisode(alcMulti1Drinks, alcMulti1Type, alcMulti1Abv, alcMulti1Hours);
+        const e2 = parseEpisode(alcMulti2Drinks, alcMulti2Type, alcMulti2Abv, alcMulti2Hours);
+        const e3 = parseEpisode(alcMulti3Drinks, alcMulti3Type, alcMulti3Abv, alcMulti3Hours);
+
+        if (e1) episodes.push({ label: "Tura 1", ...e1 });
+        if (e2) episodes.push({ label: "Tura 2", ...e2 });
+        if (e3) episodes.push({ label: "Tura 3", ...e3 });
+
+        if (!episodes.length) {
+            alcMultiResult.textContent = "Uzupełnij przynajmniej jedną turę (porcji > 0).";
+            return;
+        }
+
+        let totalPromNow = 0;
+        let totalGrams = 0;
+        let details = [];
+
+        episodes.forEach(ep => {
+            const grams = calcAlcoholGrams(ep.type, ep.drinks, ep.abvPercent);
+            totalGrams += grams;
+            const prom0 = grams / (weight * r);
+            const promAfter = Math.max(0, prom0 - eliminationRate * ep.hoursAgo);
+            totalPromNow += promAfter;
+
+            details.push(
+                `${ep.label}: ${ep.drinks}× ${ep.type} (moc ${ep.abvPercent.toFixed(1)}%, ` +
+                `${ep.hoursAgo.toFixed(1)} h temu) ⇒ początkowo ok. ${prom0.toFixed(2)}‰, ` +
+                `teraz ok. ${promAfter.toFixed(2)}‰`
+            );
+        });
+
+        const hoursToZero = totalPromNow / eliminationRate;
+        const totalPromTxt = totalPromNow.toFixed(2);
+        const hoursToZeroTxt = hoursToZero > 0 ? hoursToZero.toFixed(1) : "0.0";
+
+        alcMultiResult.innerHTML =
+            `<span>Łącznie (teraz):</span> <span>${totalPromTxt}</span> ‰ (po uwzględnieniu czasu między turami)` +
+            `<br><span>Szacunkowe łączne gramy czystego alkoholu:</span> <span>${totalGrams.toFixed(1)} g</span>` +
+            `<br><span>Przy eliminacji ~0,15‰/h → ok. <span>${hoursToZeroTxt}</span> h do wyzerowania.</span>` +
+            `<br><br><span>Szczegóły:</span><br>` +
+            details.join("<br>") +
+            `<br><br><span>Uwaga: wszystkie wyniki są orientacyjne i nie mogą być podstawą do decyzji o prowadzeniu pojazdów.</span>`;
+    });
+
+    // Start – pobranie kursów + auto-refresh FX
+    refreshRates();
+    setInterval(refreshRates, 5 * 60 * 1000);
+</script>
+</body>
+</html>
